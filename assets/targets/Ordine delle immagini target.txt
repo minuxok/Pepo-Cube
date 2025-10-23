@@ -1,0 +1,7 @@
+Ordine delle immagini target:
+
+image 1	Barbo 		audio_0.mp3
+image 2	Pepo		audio_1.mp3
+image 3	Trota		audio_2.mp3
+image 4	Tinca		audio_3.mp3
+image 5	Arborella	audio_4.mp3
