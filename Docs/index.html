@@ -31,11 +31,11 @@
       }
 
       html, body {
-        position: relative;
-        margin: 0;
+        position: relative; 
+        margin: 0; 
         padding: 0;
-        width: 100%;
-        height: 100%;
+        width: 100%; 
+        height: 100%; 
         overflow: hidden;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
       }
@@ -49,28 +49,6 @@
         position: relative;
         overflow: hidden;
         background: #000;
-      }
-
-      /* Video e Canvas layers */
-      #container video {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-        z-index: 0 !important;  /* MindAR tries to set it to -2 */
-      }
-
-      #container canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: block;
-        z-index: 1;
       }
 
       /* ═══════════════════════════════════════════════════════════════
@@ -179,7 +157,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background:
+        background: 
           linear-gradient(90deg, #de6fbe 0%, #de6fbe 20%, transparent 20%),
           linear-gradient(90deg, transparent 20%, #a1a5a6 20%, #a1a5a6 40%, transparent 40%),
           linear-gradient(90deg, transparent 40%, #7f8877 40%, #7f8877 60%, transparent 60%),
@@ -193,18 +171,18 @@
       }
 
       @keyframes move {
-        0% {
-          top: 10%;
+        0% { 
+          top: 10%; 
           opacity: 0;
         }
-        10% {
+        10% { 
           opacity: 1;
         }
-        90% {
+        90% { 
           opacity: 1;
         }
-        100% {
-          top: 90%;
+        100% { 
+          top: 90%; 
           opacity: 0;
         }
       }
@@ -275,8 +253,8 @@
         transition: transform .2s, box-shadow .2s;
         touch-action: manipulation;
       }
-
-      .btn:hover {
+      
+      .btn:hover { 
         transform: scale(1.05);
         box-shadow: 0 6px 12px rgba(0,0,0,.3);
       }
@@ -284,22 +262,22 @@
       .btn:active {
         transform: scale(0.98);
       }
-
-      #start-btn {
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+      
+      #start-btn { 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%); 
         background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
         font-size: 1.2rem;
         padding: 20px 40px;
       }
-
-      #stop-btn {
-        bottom: 32px;
-        left: 50%;
-        transform: translateX(-50%);
+      
+      #stop-btn { 
+        bottom: 32px; 
+        left: 50%; 
+        transform: translateX(-50%); 
         background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-        display: none;
+        display: none; 
       }
 
       /* ═══════════════════════════════════════════════════════════════
@@ -508,7 +486,7 @@
       }
     </style>
   </head>
-
+  
   <body>
     <!-- Loading Overlay -->
     <div id="loading-overlay">
@@ -551,7 +529,7 @@
       <div class="icon">📸</div>
       Questa esperienza di realtà aumentata richiede l'accesso alla <strong>fotocamera</strong> e <strong>audio</strong> del dispositivo.
     </div>
-
+    
     <!-- Status Messages -->
     <div id="msg" role="alert" aria-live="polite"></div>
 
@@ -559,7 +537,7 @@
     <div id="instructions">
       🎯 Inquadra un'immagine target per attivare l'audio
     </div>
-
+    
     <!-- Scanning Overlay -->
     <div id="scanning" class="hidden">
       <div class="inner">
@@ -581,5 +559,8 @@
       <div class="debug-line" id="debug-tracking">Tracking: --</div>
       <div class="debug-line" id="debug-audio">Audio: --</div>
     </div>
+  
+    <!-- Preload audio guide -->
+    <audio id="voice-guide" src="./assets/audio/guida.mp3" preload="auto"></audio>
   </body>
 </html>

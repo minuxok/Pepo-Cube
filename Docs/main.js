@@ -10,7 +10,7 @@ const CONFIG = {
   NUM_TARGETS: 5,
   AUDIO_PATH: './assets/audio/',
   MIND_PATH: './assets/targets/targets-pepo.mind',
-
+  
   // Ottimizzazioni Mobile (WebAR Best Practices)
   MOBILE_OPTIMIZATION: {
     pixelRatio: 1,              // Invece di devicePixelRatio per performance
@@ -20,14 +20,14 @@ const CONFIG = {
     warmupTolerance: 5,
     missTolerance: 5
   },
-
+  
   // Parametri Audio
   AUDIO: {
     refDistance: 1,
     rolloffFactor: 0,
     volume: 1.0
   },
-
+  
   // Debug Mode (attiva con ?debug=1 nell'URL)
   DEBUG: new URLSearchParams(window.location.search).has('debug')
 };
@@ -57,7 +57,7 @@ function showMsg(text, duration = null) {
   UI.msgBox.textContent = text;
   UI.msgBox.style.display = 'block';
   clearTimeout(hideMsgTimeout);
-
+  
   if (duration !== null) {
     hideMsgTimeout = setTimeout(() => {
       UI.msgBox.style.display = 'none';
@@ -108,9 +108,9 @@ class CompatibilityChecker {
     };
 
     const isCompatible = Object.values(results).every(r => r);
-
+    
     log('Compatibility Check:', results);
-
+    
     return {
       compatible: isCompatible,
       results: results
@@ -146,12 +146,12 @@ class CompatibilityChecker {
   static getBrowserInfo() {
     const ua = navigator.userAgent;
     let browser = 'Unknown';
-
+    
     if (ua.includes('Chrome')) browser = 'Chrome';
     else if (ua.includes('Safari')) browser = 'Safari';
     else if (ua.includes('Firefox')) browser = 'Firefox';
     else if (ua.includes('Edge')) browser = 'Edge';
-
+    
     return {
       browser: browser,
       mobile: this.isMobile(),
@@ -190,10 +190,10 @@ class AudioManager {
 
   handleAppPause() {
     if (this.isAppPaused) return;
-
+    
     log('🔇 App paused - stopping audio');
     this.isAppPaused = true;
-
+    
     if (this.currentAudio && this.currentAudio.isPlaying) {
       this.wasPlayingBeforePause = true;
       this.currentAudio.pause();
@@ -210,17 +210,17 @@ class AudioManager {
 
   handleAppResume() {
     if (!this.isAppPaused) return;
-
+    
     log('▶️ App resumed');
     this.isAppPaused = false;
-
+    
     if (this.audioContext && this.audioContext.state === 'suspended') {
       this.audioContext.resume();
     }
 
     if (this.wasPlayingBeforePause && this.currentAudio) {
       showMsg('🔄 Tocca per riprendere l\'audio', null);
-
+      
       const resumeHandler = () => {
         if (this.currentAudio && this.wasPlayingBeforePause) {
           this.currentAudio.play();
@@ -230,13 +230,13 @@ class AudioManager {
         document.removeEventListener('click', resumeHandler);
         document.removeEventListener('touchstart', resumeHandler);
       };
-
+      
       document.addEventListener('click', resumeHandler, { once: true });
       document.addEventListener('touchstart', resumeHandler, { once: true });
     } else {
       showMsg('✅ AR attivo - inquadra un target', 4000);
     }
-
+    
     this.wasPlayingBeforePause = false;
   }
 
@@ -275,22 +275,22 @@ class DebugMonitor {
   startMonitoring() {
     let lastTime = performance.now();
     let frames = 0;
-
+    
     const update = () => {
       frames++;
       const currentTime = performance.now();
-
+      
       if (currentTime >= lastTime + 1000) {
         this.updateFPS(frames);
         frames = 0;
         lastTime = currentTime;
       }
-
+      
       if (this.enabled) {
         requestAnimationFrame(update);
       }
     };
-
+    
     requestAnimationFrame(update);
   }
 
@@ -334,14 +334,12 @@ class ARApplication {
     this.audioManager = new AudioManager();
     this.debugMonitor = new DebugMonitor();
     this.isInitialized = false;
-    this.scanningLostTimers = [];  // Array to track all lost timers
-    this.currentActiveTarget = null;  // Track which target is currently active
   }
 
   async start() {
     try {
       log('=== Starting AR Application ===');
-
+      
       // Hide start button and permission message
       UI.startBtn.style.display = 'none';
       if (UI.permissionMsg) UI.permissionMsg.style.display = 'none';
@@ -366,57 +364,26 @@ class ARApplication {
       updateLoadingText('Caricamento audio assets...', '4/4');
       await this.loadAudioAssets();
 
+      // Setup event handlers
+      this.setupEventHandlers();
+
       // Start MindAR
       await this.mindarThree.start();
       log('✅ MindAR started successfully');
 
-      // Verify video is running
-      const video = this.mindarThree.video;
-      if (video) {
-        log(`📹 Video element created: ${video.videoWidth}x${video.videoHeight}, playing: ${!video.paused}`);
-
-        // Force video visibility and z-index (MindAR sets it to -2!)
-        video.style.display = 'block';
-        video.style.visibility = 'visible';
-        video.style.opacity = '1';
-        video.style.zIndex = '0';  // ← CRITICAL FIX: MindAR sets it to -2
-        log(`📹 Video z-index forced to 0 (was: ${getComputedStyle(video).zIndex})`);
-      } else {
-        logError('⚠️ Video element not found!');
-      }
-
-      // Setup renderer AFTER start (important!)
-      const container = $("#container");
-      const { renderer } = this.mindarThree;
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      log(`📺 Renderer configured: ${container.clientWidth}x${container.clientHeight}`);
-
-      // Force canvas visibility
-      const canvas = container.querySelector('canvas');
-      if (canvas) {
-        canvas.style.display = 'block';
-        canvas.style.visibility = 'visible';
-        canvas.style.opacity = '1';
-        log(`📺 Canvas forced visible: ${canvas.width}x${canvas.height}`);
-      }
-
-      // Resume audio context if needed
-      if (this.listener.context.state === 'suspended') {
-        await this.listener.context.resume();
-      }
-
-      // Start render loop
-      this.startRenderLoop();
-
-      // Hide loading
+      // Hide loading, show instructions
       hideLoading();
-
-      // Show success message
       UI.instructions.classList.add('visible');
+      
       setTimeout(() => {
         UI.instructions.classList.remove('visible');
       }, 5000);
+
+      // Play initial voice guide
+      this.playVoiceGuide();
+
+      // Start render loop
+      this.startRenderLoop();
 
       // Show success message
       showMsg('✅ AR avviato! Inquadra un target', 4000);
@@ -451,7 +418,7 @@ class ARApplication {
 
   async initMindAR() {
     const isMobile = CompatibilityChecker.isMobile();
-
+    
     this.mindarThree = new MindARThree({
       container: $("#container"),
       imageTargetSrc: CONFIG.MIND_PATH,
@@ -473,7 +440,8 @@ class ARApplication {
   }
 
   async setupScene() {
-    const { scene, camera } = this.mindarThree;
+    const { scene, camera, renderer } = this.mindarThree;
+    const container = $("#container");
 
     // Setup audio listener
     this.listener = new THREE.AudioListener();
@@ -486,6 +454,16 @@ class ARApplication {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
     directionalLight.position.set(1, 1, 1);
     scene.add(directionalLight);
+
+    // Renderer optimization
+    const isMobile = CompatibilityChecker.isMobile();
+    renderer.setPixelRatio(isMobile ? CONFIG.MOBILE_OPTIMIZATION.pixelRatio : window.devicePixelRatio);
+    renderer.setSize(container.clientWidth, container.clientHeight);
+
+    // Disable shadows on mobile for performance
+    if (isMobile) {
+      renderer.shadowMap.enabled = false;
+    }
 
     log('✅ Scene setup complete');
   }
@@ -509,8 +487,8 @@ class ARApplication {
             sound.setRolloffFactor(CONFIG.AUDIO.rolloffFactor);
             sound.setVolume(CONFIG.AUDIO.volume);
             resolve(sound);
-
-            updateLoadingText(`Caricamento audio assets...`, `Audio ${i + 1}/${CONFIG.NUM_TARGETS}`);
+            
+            updateLoadingProgress(`Audio ${i + 1}/${CONFIG.NUM_TARGETS} caricato`);
           },
           (progress) => {
             if (progress.total > 0) {
@@ -539,23 +517,11 @@ class ARApplication {
 
   setupAnchorEvents(anchor, sound, index) {
     const scanningElement = $("#scanning");
+    let lostTimer = null;
 
     anchor.onTargetFound = () => {
       log(`🎯 Target ${index} found!`);
-
-      // CRITICAL: Clear ALL pending lost timers (not just this anchor's)
-      this.scanningLostTimers.forEach(timer => clearTimeout(timer));
-      this.scanningLostTimers = [];
-
-      // Set this as the active target
-      this.currentActiveTarget = index;
-
-      // Hide scanning UI IMMEDIATELY (MindAR also manages this, so force it)
-      if (scanningElement) {
-        scanningElement.classList.add('hidden');
-        scanningElement.style.display = 'none';
-        log('🎯 Scanning UI hidden');
-      }
+      clearTimeout(lostTimer);
 
       if (this.debugMonitor.enabled) {
         this.debugMonitor.updateTracking(`Target ${index} active`);
@@ -600,50 +566,84 @@ class ARApplication {
       } else {
         showMsg(`⚠️ Audio ${index + 1} non disponibile`);
       }
+
+      // Hide scanning UI
+      setTimeout(() => {
+        if (scanningElement) {
+          scanningElement.classList.add('hidden');
+          scanningElement.style.display = 'none';
+        }
+      }, 50);
     };
 
     anchor.onTargetLost = () => {
       log(`🎯 Target ${index} lost... waiting confirmation`);
-
-      // Only show scanning UI if this was the active target
-      if (this.currentActiveTarget !== index) {
-        log(`  → Not the active target, ignoring`);
-        return;
-      }
-
-      // Create a timer and add it to the centralized array
-      const lostTimer = setTimeout(() => {
+      
+      clearTimeout(lostTimer);
+      lostTimer = setTimeout(() => {
         log('Target loss confirmed');
-
-        // Only show scanning UI if no other target is active
-        if (this.currentActiveTarget === index) {
-          this.currentActiveTarget = null;
-
-          if (scanningElement) {
-            scanningElement.classList.remove('hidden');
-            scanningElement.style.display = 'flex';
-          }
-
-          if (this.debugMonitor.enabled) {
-            this.debugMonitor.updateTracking('No target');
-          }
+        
+        if (scanningElement) {
+          scanningElement.classList.remove('hidden');
+          scanningElement.style.display = 'flex';
         }
 
-        // Remove this timer from the array
-        const timerIndex = this.scanningLostTimers.indexOf(lostTimer);
-        if (timerIndex > -1) {
-          this.scanningLostTimers.splice(timerIndex, 1);
+        if (this.debugMonitor.enabled) {
+          this.debugMonitor.updateTracking('No target');
         }
       }, 300);
-
-      this.scanningLostTimers.push(lostTimer);
     };
   }
 
+  setupEventHandlers() {
+    // Stop button
+    UI.stopBtn.addEventListener('click', () => {
+      log('🔇 Stop button pressed');
+      this.audioManager.stopCurrentAudio();
+      showMsg('🔇 Audio fermato', 3000);
+    });
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      if (this.mindarThree) {
+        const container = $("#container");
+        const { renderer } = this.mindarThree;
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        log(`🔄 Resized: ${container.clientWidth}x${container.clientHeight}`);
+      }
+    });
+
+    // Orientation change (mobile)
+    if (CompatibilityChecker.isMobile()) {
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          if (this.mindarThree) {
+            const container = $("#container");
+            const { renderer } = this.mindarThree;
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            log('📱 Orientation changed');
+          }
+        }, 100);
+      });
+    }
+  }
+
+  playVoiceGuide() {
+    try {
+      const guida = new Audio('./assets/audio/guida.mp3');
+      guida.play().then(() => {
+        log('▶️ Voice guide played');
+      }).catch((e) => {
+        log('⚠️ Voice guide error:', e);
+      });
+    } catch (error) {
+      log('⚠️ Voice guide failed:', error);
+    }
+  }
 
   startRenderLoop() {
     const { renderer, scene, camera } = this.mindarThree;
-
+    
     renderer.setAnimationLoop(() => {
       renderer.render(scene, camera);
     });
@@ -656,16 +656,16 @@ class ARApplication {
       log(`📹 Video: ${videoInfo}, playing: ${!video.paused}`);
       this.debugMonitor.updateVideo(videoInfo);
     }
-
+    
     const { scene } = this.mindarThree;
     log(`📱 Scene children: ${scene.children.length}`);
   }
 
   handleError(error) {
     hideLoading();
-
+    
     let errorMessage = '❌ Errore sconosciuto';
-
+    
     if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
       errorMessage = '❌ Permessi camera negati. Abilita l\'accesso alla camera nelle impostazioni.';
     } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
@@ -675,7 +675,7 @@ class ARApplication {
     } else if (error.message) {
       errorMessage = `❌ Errore: ${error.message}`;
     }
-
+    
     showMsg(errorMessage, 8000);
     UI.startBtn.style.display = 'block';
     UI.startBtn.textContent = '🔄 Riprova';
@@ -690,24 +690,24 @@ let arApp = null;
 
 async function initializeApp() {
   log('📱 Application initializing...');
-
+  
   // Check browser compatibility
   const compatibility = CompatibilityChecker.check();
   const browserInfo = CompatibilityChecker.getBrowserInfo();
-
+  
   log('Browser:', browserInfo);
   log('Compatibility:', compatibility);
-
+  
   if (!compatibility.compatible) {
     logError('Browser not compatible:', compatibility.results);
     UI.compatibilityWarning.style.display = 'block';
     hideLoading();
     return;
   }
-
+  
   // Create AR application instance
   arApp = new ARApplication();
-
+  
   // Setup start button
   UI.startBtn.addEventListener('click', async () => {
     try {
@@ -716,38 +716,7 @@ async function initializeApp() {
       logError('Start failed:', error);
     }
   });
-
-  // Setup stop button
-  UI.stopBtn.addEventListener('click', () => {
-    log('🔇 Stop button pressed');
-    arApp.audioManager.stopCurrentAudio();
-    showMsg('🔇 Audio fermato', 3000);
-  });
-
-  // Setup resize handler
-  window.addEventListener('resize', () => {
-    if (arApp && arApp.mindarThree) {
-      const container = $("#container");
-      const { renderer } = arApp.mindarThree;
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      log(`🔄 Resized: ${container.clientWidth}x${container.clientHeight}`);
-    }
-  });
-
-  // Setup orientation change handler for mobile
-  if (CompatibilityChecker.isMobile()) {
-    window.addEventListener('orientationchange', () => {
-      setTimeout(() => {
-        if (arApp && arApp.mindarThree) {
-          const container = $("#container");
-          const { renderer } = arApp.mindarThree;
-          renderer.setSize(container.clientWidth, container.clientHeight);
-          log('📱 Orientation changed');
-        }
-      }, 100);
-    });
-  }
-
+  
   hideLoading();
   log('✅ Application ready');
 }

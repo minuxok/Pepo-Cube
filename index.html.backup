@@ -1,0 +1,247 @@
+<html>
+	<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+		<script type="importmap">
+		{
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.147.0/examples/jsm/",
+          "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+        }
+      }
+		</script>
+
+		<script src="./main.js" type="module"></script>
+
+    <style>
+      html, body {
+        position: relative; 
+        margin: 0; 
+        width: 100%; 
+        height: 100%; 
+        overflow: hidden;
+      }
+
+      #container {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+      }
+
+      #scanning {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: transparent;
+        z-index: 2;
+      }
+
+      /* Responsive design */
+      @media (min-aspect-ratio: 1/1) {
+        #scanning .inner {
+          width: 50vh;
+          height: 50vh;
+        }
+      }
+      @media (max-aspect-ratio: 1/1) {
+        #scanning .inner {
+          width: 80vw;
+          height: 80vw;
+        }
+      }
+
+      #scanning .inner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      /* Angoli colorati personalizzati */
+      #scanning .corner {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border-width: 6px;
+        border-style: solid;
+        border-radius: 8px;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      /* Angolo in alto a sinistra - Rosa */
+      #scanning .corner.top-left {
+        top: -10px;
+        left: -10px;
+        border-color: #de6fbe transparent transparent #de6fbe;
+        border-right: none;
+        border-bottom: none;
+      }
+
+      /* Angolo in alto a destra - Grigio */
+      #scanning .corner.top-right {
+        top: -10px;
+        right: -10px;
+        border-color: #a1a5a6 #a1a5a6 transparent transparent;
+        border-left: none;
+        border-bottom: none;
+      }
+
+      /* Angolo in basso a sinistra - Verde */
+      #scanning .corner.bottom-left {
+        bottom: -10px;
+        left: -10px;
+        border-color: transparent transparent #7f8877 #7f8877;
+        border-top: none;
+        border-right: none;
+      }
+
+      /* Angolo in basso a destra - Viola */
+      #scanning .corner.bottom-right {
+        bottom: -10px;
+        right: -10px;
+        border-color: transparent #85306a #85306a transparent;
+        border-top: none;
+        border-left: none;
+      }
+
+      /* Classe per nascondere l'elemento */
+      #scanning.hidden {
+        display: none;
+      }
+
+      /* Linea di scansione con proprietà base COMPLETE */
+      #scanning .inner .scanline {
+        position: absolute;
+        width: 90%;
+        height: 8px;
+        background: transparent;
+        animation: move 3s ease-in-out infinite;
+      }
+
+      /* Geo Blocks completo */
+      #scanning .inner .scanline::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+          linear-gradient(90deg, #de6fbe 0%, #de6fbe 20%, transparent 20%),
+          linear-gradient(90deg, transparent 20%, #a1a5a6 20%, #a1a5a6 40%, transparent 40%),
+          linear-gradient(90deg, transparent 40%, #7f8877 40%, #7f8877 60%, transparent 60%),
+          linear-gradient(90deg, transparent 60%, #85306a 60%, #85306a 80%, transparent 80%),
+          linear-gradient(90deg, transparent 80%, #574d4e 80%, #574d4e 100%);
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        transform: perspective(100px) rotateX(15deg);
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        box-shadow: 0 0 15px rgba(222, 111, 190, 0.5);
+      }
+
+      /* Animazione movimento */
+      @keyframes move {
+        0% { 
+          top: 10%; 
+          opacity: 0;
+        }
+        10% { 
+          opacity: 1;
+        }
+        90% { 
+          opacity: 1;
+        }
+        100% { 
+          top: 90%; 
+          opacity: 0;
+        }
+      }
+
+      /* Pulsanti */
+      .btn {
+        position: absolute;
+        z-index: 10;
+        border: none;
+        border-radius: 12px;
+        padding: 16px 28px;
+        font: 700 1rem Arial;
+        color: #fff;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0,0,0,.25);
+        transition: transform .2s;
+      }
+      
+      .btn:hover { 
+        transform: scale(1.05); 
+      }
+      
+      #start-btn { 
+        top: 50%; 
+        left: 50%; 
+        transform: translate(-50%, -50%); 
+        background: #4caf50; 
+      }
+      
+      #stop-btn { 
+        bottom: 32px; 
+        left: 50%; 
+        transform: translateX(-50%); 
+        background: #f44336; 
+        display: none; 
+      }
+
+      #msg {
+        position: absolute;
+        bottom: 96px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        background: rgba(0,0,0,0.8);
+        color: #fff;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        display: none;
+        text-align: center;
+        max-width: 80%;
+      }
+    </style>
+  </head>
+   <body>
+    <!-- Pulsanti -->
+    <button id="start-btn" class="btn">🎷 Inizia AR</button>
+    <button id="stop-btn" class="btn">🔇 STOP Audio</button>
+
+    <!-- Messaggio permessi -->
+    <p id="permission-msg" style="position: absolute; top: 20%; left: 50%; transform: translateX(-50%); z-index: 10; background: rgba(0,0,0,0.8); color: #fff; border-radius: 8px; padding: 16px 24px; font-size: 0.95rem; text-align: center; max-width: 85%; display: block;">
+      Questa esperienza di realtà aumentata richiede l'accesso alla fotocamera e audio del dispositivo
+    </p>
+    
+    <div id="msg"></div>
+    
+    <div id="scanning" class="hidden">
+      <div class="inner">
+        <div class="corner top-left"></div>
+        <div class="corner top-right"></div>
+        <div class="corner bottom-left"></div>
+        <div class="corner bottom-right"></div>
+        <div class="scanline"></div>
+      </div>
+    </div>
+    <div id="container"></div>
+  
+    <audio id="voice-guide" src="./assets/audio/guida.mp3" preload="auto"></audio>
+  </body>
+    
+</html>
