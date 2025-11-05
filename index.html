@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Esperienza AR con tracciamento immagini e audio posizionale">
-    <title>AR Experience - MindAR</title>
+    <title>AR Experience - Pepo Cube</title>
 
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
 
@@ -351,6 +351,7 @@
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255,255,255,0.1);
         line-height: 1.5;
+        display: none; /* Nascosto di default - non più necessario con welcome screen */
       }
 
       #permission-msg .icon {
@@ -506,6 +507,386 @@
           transition-duration: 0.01ms !important;
         }
       }
+
+      /* ═══════════════════════════════════════════════════════════════
+         🌊 UNDERWATER WELCOME SCREEN
+         ═══════════════════════════════════════════════════════════════ */
+
+      /* Welcome Screen Container */
+      #welcome-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        transition: opacity 0.8s ease, visibility 0.8s ease;
+      }
+
+      #welcome-screen.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+
+      /* Animated Underwater Gradient Background */
+      .underwater-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          135deg,
+          #0a4d68 0%,
+          #088395 25%,
+          #05bfdb 50%,
+          #00d9ff 75%,
+          #0a4d68 100%
+        );
+        background-size: 400% 400%;
+        animation: underwaterFlow 20s ease infinite;
+      }
+
+      @keyframes underwaterFlow {
+        0% { background-position: 0% 50%; }
+        25% { background-position: 50% 80%; }
+        50% { background-position: 100% 50%; }
+        75% { background-position: 50% 20%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      /* Bubble Particles */
+      .bubbles {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      .bubble {
+        position: absolute;
+        bottom: -100px;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+        border-radius: 50%;
+        opacity: 0.6;
+        animation: rise linear infinite;
+        box-shadow:
+          inset 0 0 10px rgba(255, 255, 255, 0.5),
+          0 0 20px rgba(255, 255, 255, 0.2);
+      }
+
+      @keyframes rise {
+        0% {
+          bottom: -100px;
+          transform: translateX(0) scale(1);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.6;
+        }
+        90% {
+          opacity: 0.6;
+        }
+        100% {
+          bottom: 110vh;
+          transform: translateX(var(--drift)) scale(0.3);
+          opacity: 0;
+        }
+      }
+
+      /* Wave Overlay */
+      .wave-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background:
+          radial-gradient(ellipse at 50% 0%, rgba(10, 77, 104, 0.3) 0%, transparent 50%),
+          radial-gradient(ellipse at 50% 100%, rgba(0, 217, 255, 0.2) 0%, transparent 50%);
+        animation: waveShift 15s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      @keyframes waveShift {
+        0%, 100% { opacity: 0.3; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.1); }
+      }
+
+      /* Glassmorphism Card */
+      .welcome-card {
+        position: relative;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 30px;
+        border: 2px solid rgba(255, 255, 255, 0.15);
+        padding: 50px 40px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow:
+          0 8px 32px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        text-align: center;
+        z-index: 0;
+        animation: cardSlideUp 1s ease backwards;
+      }
+
+      @keyframes cardSlideUp {
+        from {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Logo Container */
+      .welcome-logo {
+        font-size: 4rem;
+        margin-bottom: 20px;
+        animation: logoFadeIn 1s ease 0.3s backwards;
+        filter: drop-shadow(0 0 20px rgba(0, 217, 255, 0.5));
+      }
+
+      /* Logo Canvas Styling */
+      #cube-canvas {
+        width: 150px;
+        height: 150px;
+        display: block;
+        margin: 0 auto;
+      }
+
+      @keyframes logoFadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.5) rotate(-10deg);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) rotate(0deg);
+        }
+      }
+
+      /* Responsive logo size */
+      @media (max-width: 600px) {
+        #cube-canvas {
+          width: 120px;
+          height: 120px;
+        }
+      }
+
+      @media (max-height: 700px) {
+        #cube-canvas {
+          width: 100px;
+          height: 100px;
+        }
+      }
+
+      /* Gradient Title */
+      .welcome-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 0 0 15px 0;
+        background: linear-gradient(135deg, #00d9ff 0%, #05bfdb 50%, #ffffff 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: titleFadeIn 1s ease 0.5s backwards;
+        text-shadow: 0 0 30px rgba(0, 217, 255, 0.3);
+      }
+
+      @keyframes titleFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Tagline */
+      .welcome-tagline {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        margin: 0 0 35px 0;
+        line-height: 1.6;
+        animation: fadeIn 1s ease 0.7s backwards;
+      }
+
+      /* 3D Underwater Button */
+      .btn-underwater {
+        position: relative;
+        padding: 20px 50px;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, #088395 0%, #05bfdb 50%, #00d9ff 100%);
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transform-style: preserve-3d;
+        transition: all 0.3s ease;
+        box-shadow:
+          0 10px 30px rgba(8, 131, 149, 0.5),
+          0 5px 15px rgba(0, 217, 255, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        animation: buttonScaleIn 1s ease 0.9s backwards;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin: 0 auto;
+      }
+
+      .btn-underwater .btn-icon {
+        height: 28px;
+        width: auto;
+        vertical-align: middle;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+      }
+
+      @keyframes buttonScaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .btn-underwater::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transform: rotate(45deg);
+        animation: shimmer 3s linear infinite;
+      }
+
+      @keyframes shimmer {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+      }
+
+      .btn-underwater:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow:
+          0 15px 40px rgba(8, 131, 149, 0.6),
+          0 8px 20px rgba(0, 217, 255, 0.5),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+
+      .btn-underwater:active {
+        transform: translateY(-2px) scale(0.98);
+        box-shadow:
+          0 8px 20px rgba(8, 131, 149, 0.4),
+          0 4px 10px rgba(0, 217, 255, 0.3);
+      }
+
+      /* Pulse Animation */
+      .btn-underwater {
+        animation: buttonScaleIn 1s ease 0.9s backwards, buttonPulse 2s ease-in-out 2s infinite;
+      }
+
+      @keyframes buttonPulse {
+        0%, 100% {
+          box-shadow:
+            0 10px 30px rgba(8, 131, 149, 0.5),
+            0 5px 15px rgba(0, 217, 255, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        50% {
+          box-shadow:
+            0 10px 40px rgba(8, 131, 149, 0.7),
+            0 5px 20px rgba(0, 217, 255, 0.5),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3),
+            0 0 30px rgba(0, 217, 255, 0.4);
+        }
+      }
+
+
+      /* Responsive Adjustments for Welcome Screen */
+      @media (max-width: 600px) {
+        .welcome-card {
+          padding: 40px 30px;
+        }
+
+        .welcome-logo {
+          font-size: 3rem;
+        }
+
+        .welcome-title {
+          font-size: 2rem;
+        }
+
+        .welcome-tagline {
+          font-size: 1rem;
+        }
+
+        .btn-underwater {
+          padding: 18px 40px;
+          font-size: 1.1rem;
+        }
+
+        .btn-underwater .btn-icon {
+          height: 24px;
+        }
+      }
+
+      @media (max-height: 700px) {
+        .welcome-card {
+          padding: 30px 25px;
+        }
+
+        .welcome-logo {
+          font-size: 2.5rem;
+          margin-bottom: 15px;
+        }
+
+        .welcome-title {
+          font-size: 1.8rem;
+          margin-bottom: 10px;
+        }
+
+        .welcome-tagline {
+          font-size: 0.95rem;
+          margin-bottom: 25px;
+        }
+
+        .btn-underwater {
+          padding: 16px 35px;
+          font-size: 1rem;
+        }
+
+        .btn-underwater .btn-icon {
+          height: 22px;
+        }
+      }
     </style>
   </head>
 
@@ -581,5 +962,287 @@
       <div class="debug-line" id="debug-tracking">Tracking: --</div>
       <div class="debug-line" id="debug-audio">Audio: --</div>
     </div>
+
+    <!-- 🌊 UNDERWATER WELCOME SCREEN -->
+    <div id="welcome-screen">
+      <!-- Animated Background -->
+      <div class="underwater-bg"></div>
+
+      <!-- Wave Overlay -->
+      <div class="wave-overlay"></div>
+
+      <!-- Bubble Particles -->
+      <div class="bubbles" id="bubbles-container"></div>
+
+      <!-- Glassmorphism Card -->
+      <div class="welcome-card">
+        <!-- Logo -->
+        <div class="welcome-logo">
+          <canvas id="cube-canvas"></canvas>
+        </div>
+
+        <!-- Title with Gradient -->
+        <h1 class="welcome-title">AR Underwater Experience</h1>
+
+        <!-- Tagline -->
+        <p class="welcome-tagline">
+          Immergiti in un'esperienza di realtà aumentata<br>
+          con audio posizionale e tracciamento immagini
+        </p>
+
+        <!-- Call-to-Action Button -->
+        <button id="welcome-start-btn" class="btn-underwater" aria-label="Inizia esperienza AR">
+          <img src="./assets/icone-per-bottone-inizia-avventura/alborella.png" alt="" class="btn-icon" /> Inizia Esperienza
+        </button>
+      </div>
+    </div>
+
+    <!-- 🌊 Welcome Screen JavaScript -->
+    <script>
+      // ═══════════════════════════════════════════════════════════════
+      // 🌊 UNDERWATER WELCOME SCREEN LOGIC
+      // ═══════════════════════════════════════════════════════════════
+
+      (function() {
+        'use strict';
+
+        // Initialize 3D Cube
+        let cubeScene = null;
+        let cubeCamera = null;
+        let cubeRenderer = null;
+        let cubeModel = null;
+        let cubeAnimationId = null;
+
+        async function initCube() {
+          const canvas = document.getElementById('cube-canvas');
+          if (!canvas) {
+            console.error('[Cube] Canvas not found');
+            return;
+          }
+
+          // Import Three.js modules
+          const THREE = await import('three');
+          const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+
+          // Setup scene
+          cubeScene = new THREE.Scene();
+
+          // Setup camera
+          cubeCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+          cubeCamera.position.z = 3;
+
+          // Setup renderer
+          cubeRenderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            alpha: true,
+            antialias: true
+          });
+          const size = parseInt(getComputedStyle(canvas).width);
+          cubeRenderer.setSize(size, size);
+          cubeRenderer.setPixelRatio(window.devicePixelRatio);
+
+          // Add lights
+          const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+          cubeScene.add(ambientLight);
+
+          const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.6);
+          directionalLight1.position.set(5, 5, 5);
+          cubeScene.add(directionalLight1);
+
+          const directionalLight2 = new THREE.DirectionalLight(0x00d9ff, 0.4);
+          directionalLight2.position.set(-5, -5, -5);
+          cubeScene.add(directionalLight2);
+
+          // Load GLB model
+          const loader = new GLTFLoader();
+          try {
+            const gltf = await new Promise((resolve, reject) => {
+              loader.load(
+                './assets/3D/cubo-con-immagini.glb',
+                (gltf) => resolve(gltf),
+                undefined,
+                (error) => reject(error)
+              );
+            });
+
+            cubeModel = gltf.scene;
+
+            // Scale the model to fit
+            const box = new THREE.Box3().setFromObject(cubeModel);
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            const scale = 2 / maxDim;
+            cubeModel.scale.multiplyScalar(scale);
+
+            // Center the model
+            box.setFromObject(cubeModel);
+            const center = box.getCenter(new THREE.Vector3());
+            cubeModel.position.sub(center);
+
+            cubeScene.add(cubeModel);
+            console.log('[Cube] Model loaded successfully');
+
+            // Start animation
+            animateCube();
+          } catch (error) {
+            console.error('[Cube] Error loading model:', error);
+          }
+
+          // Handle window resize
+          window.addEventListener('resize', () => {
+            const size = parseInt(getComputedStyle(canvas).width);
+            cubeRenderer.setSize(size, size);
+            cubeCamera.aspect = 1;
+            cubeCamera.updateProjectionMatrix();
+          });
+        }
+
+        function animateCube() {
+          cubeAnimationId = requestAnimationFrame(animateCube);
+
+          if (cubeModel) {
+            // Rotate on multiple axes for dynamic effect
+            cubeModel.rotation.x += 0.005;
+            cubeModel.rotation.y += 0.008;
+          }
+
+          if (cubeRenderer && cubeScene && cubeCamera) {
+            cubeRenderer.render(cubeScene, cubeCamera);
+          }
+        }
+
+        // Generate bubble particles
+        function createBubbles() {
+          const bubblesContainer = document.getElementById('bubbles-container');
+          if (!bubblesContainer) return;
+
+          const bubbleCount = window.innerWidth < 768 ? 15 : 25; // Fewer bubbles on mobile
+
+          for (let i = 0; i < bubbleCount; i++) {
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+
+            // Random properties for each bubble
+            const size = Math.random() * 40 + 20; // 20-60px
+            const left = Math.random() * 100; // 0-100%
+            const duration = Math.random() * 10 + 10; // 10-20s
+            const delay = Math.random() * 5; // 0-5s delay
+            const drift = (Math.random() - 0.5) * 100; // -50 to +50 drift
+
+            bubble.style.width = `${size}px`;
+            bubble.style.height = `${size}px`;
+            bubble.style.left = `${left}%`;
+            bubble.style.animationDuration = `${duration}s`;
+            bubble.style.animationDelay = `${delay}s`;
+            bubble.style.setProperty('--drift', `${drift}px`);
+
+            bubblesContainer.appendChild(bubble);
+          }
+        }
+
+        // Handle welcome screen transition
+        function initWelcomeScreen() {
+          const welcomeScreen = document.getElementById('welcome-screen');
+          const welcomeStartBtn = document.getElementById('welcome-start-btn');
+          const arStartBtn = document.getElementById('start-btn');
+
+          if (!welcomeScreen || !welcomeStartBtn || !arStartBtn) {
+            console.error('[Welcome] Required elements not found');
+            return;
+          }
+
+          // Hide AR start button (non più necessario)
+          arStartBtn.style.display = 'none';
+
+          // Handle welcome start button click - AVVIA AR DIRETTAMENTE
+          welcomeStartBtn.addEventListener('click', function() {
+            console.log('[Welcome] Starting AR directly from welcome screen...');
+
+            // Nascondi IMMEDIATAMENTE il permission message
+            const permissionMsg = document.getElementById('permission-msg');
+            if (permissionMsg) {
+              permissionMsg.style.display = 'none';
+            }
+
+            // Disable button to prevent double-click
+            welcomeStartBtn.disabled = true;
+            welcomeStartBtn.style.opacity = '0.7';
+            welcomeStartBtn.style.cursor = 'not-allowed';
+
+            // Add click feedback
+            welcomeStartBtn.style.transform = 'scale(0.95)';
+
+            setTimeout(() => {
+              // Hide welcome screen with animation
+              welcomeScreen.classList.add('hidden');
+
+              // Stop cube animation
+              if (cubeAnimationId) {
+                cancelAnimationFrame(cubeAnimationId);
+                cubeAnimationId = null;
+              }
+
+              // After transition, hide welcome screen and START AR
+              setTimeout(() => {
+                welcomeScreen.style.display = 'none';
+
+                // Trigger AR start directly
+                if (window.arApp) {
+                  window.arApp.start().catch(error => {
+                    console.error('[Welcome] AR start failed:', error);
+                    // Re-enable button on error
+                    welcomeScreen.style.display = 'flex';
+                    welcomeScreen.classList.remove('hidden');
+                    welcomeStartBtn.disabled = false;
+                    welcomeStartBtn.style.opacity = '1';
+                    welcomeStartBtn.style.cursor = 'pointer';
+                    welcomeStartBtn.style.transform = '';
+                  });
+                } else {
+                  console.error('[Welcome] arApp not yet initialized');
+                }
+
+                console.log('[Welcome] Transition complete, AR starting...');
+              }, 800);
+            }, 100);
+          });
+
+          // Add touch feedback for mobile
+          welcomeStartBtn.addEventListener('touchstart', function() {
+            welcomeStartBtn.style.transform = 'translateY(-2px) scale(0.98)';
+          }, { passive: true });
+
+          welcomeStartBtn.addEventListener('touchend', function() {
+            welcomeStartBtn.style.transform = '';
+          }, { passive: true });
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() {
+            initCube();
+            createBubbles();
+            initWelcomeScreen();
+          });
+        } else {
+          initCube();
+          createBubbles();
+          initWelcomeScreen();
+        }
+
+        // Recreate bubbles on window resize (debounced)
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(function() {
+            const bubblesContainer = document.getElementById('bubbles-container');
+            if (bubblesContainer) {
+              bubblesContainer.innerHTML = '';
+              createBubbles();
+            }
+          }, 500);
+        });
+      })();
+    </script>
   </body>
 </html>

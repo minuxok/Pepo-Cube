@@ -11,6 +11,9 @@ const CONFIG = {
   AUDIO_PATH: './assets/audio/',
   MIND_PATH: './assets/targets/targets-pepo.mind',
 
+  // Nomi dei pesci per i target
+  FISH_NAMES: ['Barbo', 'Pepo', 'Trota', 'Tinca', 'Arborella'],
+
   // Ottimizzazioni Mobile (WebAR Best Practices)
   MOBILE_OPTIMIZATION: {
     pixelRatio: 1,              // Invece di devicePixelRatio per performance
@@ -334,12 +337,20 @@ class ARApplication {
     this.audioManager = new AudioManager();
     this.debugMonitor = new DebugMonitor();
     this.isInitialized = false;
+    this.isStarting = false;
     this.scanningLostTimers = [];  // Array to track all lost timers
     this.currentActiveTarget = null;  // Track which target is currently active
   }
 
   async start() {
+    // Prevent multiple simultaneous starts
+    if (this.isStarting || this.isInitialized) {
+      log('⚠️ AR already starting or initialized');
+      return;
+    }
+
     try {
+      this.isStarting = true;
       log('=== Starting AR Application ===');
 
       // Hide start button and permission message
@@ -422,6 +433,7 @@ class ARApplication {
       showMsg('✅ AR avviato! Inquadra un target', 4000);
 
       this.isInitialized = true;
+      this.isStarting = false;
 
       // Debug info
       if (CONFIG.DEBUG) {
@@ -429,6 +441,7 @@ class ARApplication {
       }
 
     } catch (error) {
+      this.isStarting = false;
       logError('Failed to start AR:', error);
       this.handleError(error);
     }
@@ -579,7 +592,7 @@ class ARApplication {
         sound.play();
         this.audioManager.setCurrentAudio(sound, this.listener.context);
         UI.stopBtn.style.display = 'block';
-        showMsg(`🎵 Audio ${index + 1} in riproduzione`);
+        showMsg(`🎵 ${CONFIG.FISH_NAMES[index]} in riproduzione`);
 
         if (this.debugMonitor.enabled) {
           this.debugMonitor.updateAudio(`Playing ${index}`);
@@ -708,7 +721,11 @@ async function initializeApp() {
   // Create AR application instance
   arApp = new ARApplication();
 
-  // Setup start button
+  // Esporre globalmente per la welcome screen
+  window.arApp = arApp;
+  log('✅ arApp exposed globally as window.arApp');
+
+  // Setup start button (fallback, non più usato normalmente)
   UI.startBtn.addEventListener('click', async () => {
     try {
       await arApp.start();

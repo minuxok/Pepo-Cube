@@ -10,7 +10,10 @@ const CONFIG = {
   NUM_TARGETS: 5,
   AUDIO_PATH: './assets/audio/',
   MIND_PATH: './assets/targets/targets-pepo.mind',
-  
+
+  // Nomi dei pesci per i target
+  FISH_NAMES: ['Barbo', 'Pepo', 'Trota', 'Tinca', 'Arborella'],
+
   // Ottimizzazioni Mobile (WebAR Best Practices)
   MOBILE_OPTIMIZATION: {
     pixelRatio: 1,              // Invece di devicePixelRatio per performance
@@ -545,7 +548,7 @@ class ARApplication {
         sound.play();
         this.audioManager.setCurrentAudio(sound, this.listener.context);
         UI.stopBtn.style.display = 'block';
-        showMsg(`🎵 Audio ${index + 1} in riproduzione`);
+        showMsg(`🎵 ${CONFIG.FISH_NAMES[index]} in riproduzione`);
 
         if (this.debugMonitor.enabled) {
           this.debugMonitor.updateAudio(`Playing ${index}`);
