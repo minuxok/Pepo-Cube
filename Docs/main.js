@@ -237,7 +237,7 @@ class AudioManager {
       document.addEventListener('click', resumeHandler, { once: true });
       document.addEventListener('touchstart', resumeHandler, { once: true });
     } else {
-      showMsg('✅ AR attivo - inquadra un target', 4000);
+      showMsg('✅ AR attivo - inquadra una immagine', 4000);
     }
     
     this.wasPlayingBeforePause = false;
@@ -389,7 +389,7 @@ class ARApplication {
       this.startRenderLoop();
 
       // Show success message
-      showMsg('✅ AR avviato! Inquadra un target', 4000);
+      showMsg('✅ AR avviato! Inquadra una immagine', 4000);
 
       this.isInitialized = true;
 
