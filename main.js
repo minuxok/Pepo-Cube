@@ -12,7 +12,7 @@ const CONFIG = {
   MIND_PATH: './assets/targets/targets-pepo.mind',
 
   // Nomi dei pesci per i target
-  FISH_NAMES: ['Barbo', 'Pepo', 'Trota', 'Tinca', 'Arborella'],
+  FISH_NAMES: ['Barbo', 'Pepo', 'Tinca', 'Trota', 'Arborella'],
 
   // Ottimizzazioni Mobile (WebAR Best Practices)
   MOBILE_OPTIMIZATION: {

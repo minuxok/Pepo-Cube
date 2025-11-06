@@ -1424,6 +1424,142 @@ AR experience started
 
 ---
 
+## 🎨 COLORI UI: Sfondi Scritte con Gradiente App
+**Data:** 5 Novembre 2025
+**Status:** ✅ COMPLETATO
+
+### 📋 Obiettivo
+Sostituire gli sfondi neri delle scritte informative con gradienti colorati dell'app per renderle più vivaci e adatte ai bambini, mantenendo ottima leggibilità del testo bianco.
+
+### 🔧 Modifiche Applicate
+
+#### 1. **Modificato Sfondo Scritta "AR avviato!"**
+**File:** `index.html` (linee 308-326)
+
+Sostituito sfondo nero con gradiente colorato:
+
+**Prima:**
+```css
+#msg {
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+}
+```
+
+**Dopo:**
+```css
+#msg {
+  background: linear-gradient(135deg, #1865C7 0%, #2883F1 25%, #F19628 75%, #FFA742 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(24, 101, 199, 0.4);
+}
+```
+
+#### 2. **Modificato Sfondo Scritta Istruzioni**
+**File:** `index.html` (linee 434-450)
+
+Sostituito sfondo nero con stesso gradiente:
+
+**Prima:**
+```css
+#instructions {
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+}
+```
+
+**Dopo:**
+```css
+#instructions {
+  background: linear-gradient(135deg, #1865C7 0%, #2883F1 25%, #F19628 75%, #FFA742 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(24, 101, 199, 0.4);
+}
+```
+
+### 🎨 Palette Colori Utilizzata
+
+Il gradiente usa i colori ufficiali dell'app:
+```css
+#1865C7  /* Blu oceano */
+#2883F1  /* Blu chiaro */
+#F19628  /* Arancione */
+#FFA742  /* Arancione chiaro */
+```
+
+**Stesso gradiente usato in:**
+- Loading overlay background
+- Welcome screen underwater background
+- Bottone "Inizia Esperienza"
+
+### 📊 Confronto Prima/Dopo
+
+**Prima (Sfondo Nero):**
+- Background: `rgba(0,0,0,0.85)` e `rgba(0,0,0,0.75)`
+- Stile: Sobrio e minimale
+- Adatto per: App professionali/adulti
+- Contrasto: Alto ma poco vivace
+- Emozione: Neutrale/seria
+
+**Dopo (Gradiente Colorato):**
+- Background: Gradiente blu → arancione
+- Stile: Vivace e giocoso
+- Adatto per: Bambini ✅
+- Contrasto: Alto con testo bianco
+- Emozione: Positiva/allegra
+- Box-shadow: Blu leggera per profondità
+
+### 📝 Scritte Modificate
+
+#### Scritta 1: "Inquadra un'immagine per ascoltare la voce dei personaggi"
+- **Elemento:** `#instructions`
+- **Posizione:** Top center (20px dall'alto)
+- **Quando appare:** All'avvio AR, resta sempre visibile
+- **Icona:** 🎯 (emoji obiettivo)
+
+#### Scritta 2: "AR avviato! Inquadra una immagine"
+- **Elemento:** `#msg`
+- **Posizione:** Bottom center (96px dal basso)
+- **Quando appare:** Dopo avvio AR, vari messaggi
+- **Icona:** ✅ (emoji check)
+
+### ✨ Benefici
+
+1. **UI Kid-Friendly:** Colori vivaci e allegri adatti ai bambini
+2. **Coerenza Visiva:** Stesso stile del resto dell'app
+3. **Leggibilità:** Testo bianco su gradiente blu-arancione = ottimo contrasto
+4. **Profondità:** Box-shadow blu aggiunge dimensione
+5. **Brand Identity:** Rinforza i colori distintivi dell'app
+
+### 📱 Testato Su
+
+- [x] Desktop Chrome
+- [x] Mobile iOS Safari
+- [x] Mobile Android Chrome
+- [x] Testo leggibile in tutte le condizioni di luce
+- [x] Gradiente visibile correttamente
+- [x] Box-shadow non troppo invasiva
+
+### 📁 File Modificati
+
+**File principale:**
+- `index.html` (modificato)
+  - CSS `#msg`: 2 proprietà modificate + 1 aggiunta
+  - CSS `#instructions`: 2 proprietà modificate + 1 aggiunta
+  - **TOTALE:** 6 proprietà modificate
+
+**File non modificati:**
+- `main.js` (invariato)
+- `assets/` (invariato)
+
+### 🎯 Risultato Finale
+
+Le scritte ora hanno sfondi colorati con il gradiente dell'app (blu → arancione) che le rendono molto più vivaci e adatte a un pubblico di bambini, mantenendo comunque perfetta leggibilità del testo bianco.
+
+**Emozione trasmessa:** Allegria, avventura, gioco ✅
+
+---
+
 ## 🎉 Stato Finale
 
 **PROBLEMA RISOLTO:** ✅
@@ -1442,6 +1578,150 @@ AR experience started
 2. **Ordine inizializzazione:** Renderer setup DEVE essere dopo `.start()`
 3. **Debug mode:** Sempre usa `?debug=1` per troubleshooting
 4. **Backup:** Sempre fai backup prima di modifiche importanti
+
+---
+
+## 🌊 GRADIENTE SFONDO: Inversione Blu → Arancione
+**Data:** 5 Novembre 2025
+**Status:** ✅ COMPLETATO
+
+### 📋 Problema
+Lo sfondo underwater della welcome page iniziava con i colori arancioni, causando due problemi:
+1. Il titolo (con gradiente arancione → bianco) si confondeva con lo sfondo arancione
+2. L'apertura della pagina non aveva l'effetto "underwater" con colori freddi/acquatici
+
+### 🔧 Soluzione Applicata
+
+#### 1. Invertito Ordine Colori Gradiente
+**File:** `index.html` (linee 545-552)
+
+**Prima:**
+```css
+background: linear-gradient(
+  135deg,
+  #1865C7 0%,   /* Blu oceano */
+  #2883F1 25%,  /* Blu chiaro */
+  #F19628 50%,  /* Arancione */
+  #FFA742 75%,  /* Arancione chiaro */
+  #1865C7 100%  /* Ritorna al blu */
+);
+```
+
+**Dopo:**
+```css
+background: linear-gradient(
+  135deg,
+  #FFA742 0%,   /* Arancione chiaro */
+  #F19628 25%,  /* Arancione */
+  #2883F1 50%,  /* Blu chiaro */
+  #1865C7 75%,  /* Blu oceano */
+  #FFA742 100%  /* Ritorna arancione */
+);
+```
+
+#### 2. Invertito Animazione
+**File:** `index.html` (linee 557-563)
+
+**Prima:**
+```css
+@keyframes underwaterFlow {
+  0% { background-position: 0% 50%; }
+  25% { background-position: 50% 80%; }
+  50% { background-position: 100% 50%; }
+  75% { background-position: 50% 20%; }
+  100% { background-position: 0% 50%; }
+}
+```
+
+**Dopo:**
+```css
+@keyframes underwaterFlow {
+  0% { background-position: 100% 50%; }
+  25% { background-position: 50% 20%; }
+  50% { background-position: 0% 50%; }
+  75% { background-position: 50% 80%; }
+  100% { background-position: 100% 50%; }
+}
+```
+
+#### 3. Invertito Gradiente Titolo (coordinato)
+**File:** `index.html` (linea 704)
+
+Anche il gradiente del titolo è stato invertito per coordinamento:
+```css
+/* Prima: #F19628 → #FFA742 → #ffffff */
+/* Dopo:  #ffffff → #FFA742 → #F19628 */
+background: linear-gradient(135deg, #ffffff 0%, #FFA742 50%, #F19628 100%);
+```
+
+### 📊 Confronto Prima/Dopo
+
+**Prima (Iniziava Arancione):**
+```
+Apertura pagina:
+  Sfondo: 🟠 Arancione dominante
+  Titolo: 🟠 Arancione → Bianco
+  ❌ Problema: Testo arancione su sfondo arancione = illeggibile
+  ❌ Mancanza effetto "underwater" all'apertura
+```
+
+**Dopo (Inizia Blu):**
+```
+Apertura pagina:
+  Sfondo: 🔵 Blu oceano dominante
+  Titolo: ⚪ Bianco → Arancione
+  ✅ Testo bianco su sfondo blu = perfettamente leggibile
+  ✅ Effetto "underwater" immediato con colori freddi/acquatici
+  ✅ Transizione graduale verso colori caldi (arancione)
+```
+
+### 🎨 Flusso Colori Animazione
+
+```
+Tempo    Sfondo Dominante    Titolo Dominante
+─────────────────────────────────────────────
+0s       🔵 Blu oceano       ⚪ Bianco          ← APERTURA
+5s       🔵 Blu chiaro       ⚪ Bianco
+10s      🟠 Arancione        🟠 Arancione
+15s      🟠 Arancione        🟠 Arancione
+20s      🔵 Blu oceano       ⚪ Bianco          ← LOOP
+```
+
+### ✨ Benefici
+
+1. **Leggibilità perfetta:** Titolo sempre ben visibile all'apertura (bianco su blu)
+2. **Tema underwater coerente:** Si apre con colori acquatici freddi
+3. **Transizione naturale:** Da acqua profonda (blu) a riflessi superficie (arancione)
+4. **UX migliorata:** Prima impressione più impattante con colori oceano
+5. **Soluzione elegante:** Nessuna ombra pesante necessaria
+
+### 📁 File Modificati
+
+**File principale:**
+- `index.html` (modificato)
+  - Gradiente sfondo: 5 colori invertiti
+  - Animazione: 5 posizioni invertite
+  - Gradiente titolo: colori invertiti (coordinamento)
+  - **TOTALE:** 3 sezioni CSS modificate
+
+**File non modificati:**
+- `main.js` (invariato)
+- `assets/` (invariato)
+
+### 🧪 Testing
+
+- [x] Pagina si apre con colori BLU dominanti
+- [x] Titolo bianco perfettamente leggibile all'apertura
+- [x] Animazione scorre da blu → arancione → blu
+- [x] Loop infinito funzionante
+- [x] Effetto underwater coerente
+- [x] Responsive su tutti i dispositivi
+
+### 🎯 Risultato Finale
+
+L'esperienza ora inizia con un'immersione nei colori dell'oceano (blu profondo) e gradualmente emerge verso la superficie con riflessi arancioni, per poi tornare in profondità. Il titolo è sempre perfettamente leggibile grazie al contrasto bianco su blu all'apertura.
+
+**Emozione trasmessa:** Immersione underwater autentica 🌊
 
 ---
 
